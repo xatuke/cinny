@@ -21,7 +21,6 @@ import { CreateTab } from './sidebar/CreateTab';
 
 export function SidebarNav() {
   const scrollRef = useRef<HTMLDivElement>(null);
-
   return (
     <Sidebar>
       <SidebarContent

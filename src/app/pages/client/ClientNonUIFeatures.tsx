@@ -1,7 +1,9 @@
-import { useAtomValue } from 'jotai';
-import React, { ReactNode, useCallback, useEffect, useRef } from 'react';
+import { useAtomValue, useStore } from 'jotai';
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RoomEvent, RoomEventHandlerMap } from 'matrix-js-sdk';
+import { CallHandler } from '../../utils/CallHandler';
+import { CallHandlerProvider } from '../../hooks/useCallHandler';
 import { roomToUnreadAtom, unreadEqual, unreadInfoToUnread } from '../../state/room/roomToUnread';
 import LogoSVG from '../../../../public/res/svg/cinny.svg';
 import LogoUnreadSVG from '../../../../public/res/svg/cinny-unread.svg';
@@ -253,6 +255,29 @@ function MessageNotifications() {
   );
 }
 
+function CallEventListener({ children }: { children: ReactNode }) {
+  const mx = useMatrixClient();
+  const store = useStore();
+
+  const callHandler = useMemo(() => {
+    const handler = new CallHandler(mx, store.set);
+    return handler;
+  }, [mx, store]);
+
+  useEffect(() => {
+    callHandler.start();
+    return () => {
+      callHandler.stop();
+    };
+  }, [callHandler]);
+
+  return (
+    <CallHandlerProvider value={callHandler}>
+      {children}
+    </CallHandlerProvider>
+  );
+}
+
 type ClientNonUIFeaturesProps = {
   children: ReactNode;
 };
@@ -265,7 +290,9 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
       <FaviconUpdater />
       <InviteNotifications />
       <MessageNotifications />
-      {children}
+      <CallEventListener>
+        {children}
+      </CallEventListener>
     </>
   );
 }

@@ -26,8 +26,9 @@ export function PageRoot({ nav, children }: PageRootProps) {
 
 type ClientDrawerLayoutProps = {
   children: ReactNode;
+  footer?: ReactNode;
 };
-export function PageNav({ size, children }: ClientDrawerLayoutProps & css.PageNavVariants) {
+export function PageNav({ size, children, footer }: ClientDrawerLayoutProps & css.PageNavVariants) {
   const screenSize = useScreenSizeContext();
   const isMobile = screenSize === ScreenSize.Mobile;
 
@@ -39,6 +40,11 @@ export function PageNav({ size, children }: ClientDrawerLayoutProps & css.PageNa
     >
       <Box grow="Yes" direction="Column">
         {children}
+        {footer && (
+          <Box shrink="No" direction="Column">
+            {footer}
+          </Box>
+        )}
       </Box>
     </Box>
   );

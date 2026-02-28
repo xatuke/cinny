@@ -28,6 +28,9 @@ import { useAtomValue } from 'jotai';
 
 import { useStateEvent } from '../../hooks/useStateEvent';
 import { PageHeader } from '../../components/page';
+import { useCallHandlerOptionally } from '../../hooks/useCallHandler';
+import { useActiveCall } from '../../hooks/useActiveCall';
+import { generateElementCallUrl } from '../../utils/widget/widgetUrl';
 import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { RoomTopicViewer } from '../../components/room-topic-viewer';
@@ -264,6 +267,9 @@ export function RoomViewHeader() {
   const [menuAnchor, setMenuAnchor] = useState<RectCords>();
   const [pinMenuAnchor, setPinMenuAnchor] = useState<RectCords>();
   const mDirects = useAtomValue(mDirectAtom);
+  const callHandler = useCallHandlerOptionally();
+  const activeCall = useActiveCall();
+  const joinedMemberCount = room.getJoinedMemberCount();
 
   const pinnedEvents = useRoomPinnedEvents(room);
   const encryptionEvent = useStateEvent(room, StateEvent.RoomEncryption);
@@ -443,6 +449,70 @@ export function RoomViewHeader() {
               </FocusTrap>
             }
           />
+          {callHandler && (
+            <>
+              <TooltipProvider
+                position="Bottom"
+                offset={4}
+                tooltip={
+                  <Tooltip>
+                    <Text>Voice Call</Text>
+                  </Tooltip>
+                }
+              >
+                {(triggerRef) => (
+                  <IconButton
+                    ref={triggerRef}
+                    onClick={() => {
+                      if (joinedMemberCount > 2) {
+                        const encrypted = !!room.hasEncryptionStateEvent();
+                        const widgetUrl = generateElementCallUrl(mx, room.roomId, {
+                          intent: 'start_call',
+                          perParticipantE2EE: encrypted,
+                        });
+                        callHandler.startGroupCall(room.roomId, 'voice', widgetUrl);
+                      } else {
+                        callHandler.placeCall(room.roomId, 'voice');
+                      }
+                    }}
+                    disabled={!!activeCall}
+                  >
+                    <Icon size="400" src={Icons.Phone} />
+                  </IconButton>
+                )}
+              </TooltipProvider>
+              <TooltipProvider
+                position="Bottom"
+                offset={4}
+                tooltip={
+                  <Tooltip>
+                    <Text>Video Call</Text>
+                  </Tooltip>
+                }
+              >
+                {(triggerRef) => (
+                  <IconButton
+                    ref={triggerRef}
+                    onClick={() => {
+                      if (joinedMemberCount > 2) {
+                        const encrypted = !!room.hasEncryptionStateEvent();
+                        const widgetUrl = generateElementCallUrl(mx, room.roomId, {
+                          intent: 'start_call',
+                          perParticipantE2EE: encrypted,
+                        });
+                        callHandler.startGroupCall(room.roomId, 'video', widgetUrl);
+                      } else {
+                        callHandler.placeCall(room.roomId, 'video');
+                      }
+                    }}
+                    disabled={!!activeCall}
+                  >
+                    <Icon size="400" src={Icons.VideoCamera} />
+                  </IconButton>
+                )}
+              </TooltipProvider>
+            </>
+          )}
           {screenSize === ScreenSize.Desktop && (
             <TooltipProvider
               position="Bottom"

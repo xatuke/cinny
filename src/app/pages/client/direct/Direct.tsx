@@ -40,6 +40,7 @@ import { useCategoryHandler } from '../../../hooks/useCategoryHandler';
 import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMapper';
 import { useDirectRooms } from './useDirectRooms';
 import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page';
+import { SidebarCallPanel } from '../../../features/call/SidebarCallPanel';
 import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCategories';
 import { useRoomsUnread } from '../../../state/hooks/unread';
 import { markAsRead } from '../../../utils/notifications';
@@ -203,7 +204,7 @@ export function Direct() {
   );
 
   return (
-    <PageNav>
+    <PageNav footer={<SidebarCallPanel />}>
       <DirectHeader />
       {noRoomToDisplay ? (
         <DirectEmpty />

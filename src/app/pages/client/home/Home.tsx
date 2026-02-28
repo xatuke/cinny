@@ -52,6 +52,7 @@ import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { useCategoryHandler } from '../../../hooks/useCategoryHandler';
 import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMapper';
 import { PageNav, PageNavHeader, PageNavContent } from '../../../components/page';
+import { SidebarCallPanel } from '../../../features/call/SidebarCallPanel';
 import { useRoomsUnread } from '../../../state/hooks/unread';
 import { markAsRead } from '../../../utils/notifications';
 import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCategories';
@@ -233,7 +234,7 @@ export function Home() {
   );
 
   return (
-    <PageNav>
+    <PageNav footer={<SidebarCallPanel />}>
       <HomeHeader />
       {noRoomToDisplay ? (
         <HomeEmpty />

@@ -67,6 +67,7 @@ import { HomeCreateRoom } from './client/home/CreateRoom';
 import { Create } from './client/create';
 import { CreateSpaceModalRenderer } from '../features/create-space';
 import { SearchModalRenderer } from '../features/search';
+import { IncomingCallRenderer, PersistentCallContainer } from '../features/call';
 import { getFallbackSession } from '../state/sessions';
 
 export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize) => {
@@ -134,6 +135,8 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                         <Outlet />
                       </ClientLayout>
                       <SearchModalRenderer />
+                      <IncomingCallRenderer />
+                      <PersistentCallContainer />
                       <UserRoomProfileRenderer />
                       <CreateRoomModalRenderer />
                       <CreateSpaceModalRenderer />

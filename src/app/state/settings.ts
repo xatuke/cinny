@@ -41,6 +41,11 @@ export interface Settings {
   dateFormatString: string;
 
   developerTools: boolean;
+
+  selectedAudioInput?: string;
+  selectedVideoInput?: string;
+  selectedAudioOutput?: string;
+  elementCallUrl?: string;
 }
 
 const defaultSettings: Settings = {
@@ -75,6 +80,11 @@ const defaultSettings: Settings = {
   dateFormatString: 'D MMM YYYY',
 
   developerTools: false,
+
+  selectedAudioInput: undefined,
+  selectedVideoInput: undefined,
+  selectedAudioOutput: undefined,
+  elementCallUrl: undefined,
 };
 
 export const getSettings = () => {

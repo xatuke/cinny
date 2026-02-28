@@ -29,6 +29,7 @@ import { Notifications } from './notifications';
 import { Devices } from './devices';
 import { EmojisStickers } from './emojis-stickers';
 import { DeveloperTools } from './developer-tools';
+import { VoiceVideo } from './voice-video';
 import { About } from './about';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { stopPropagation } from '../../utils/keyboard';
@@ -39,6 +40,7 @@ export enum SettingsPages {
   AccountPage,
   NotificationPage,
   DevicesPage,
+  VoiceVideoPage,
   EmojisStickersPage,
   DeveloperToolsPage,
   AboutPage,
@@ -72,6 +74,11 @@ const useSettingsMenuItems = (): SettingsMenuItem[] =>
         page: SettingsPages.DevicesPage,
         name: 'Devices',
         icon: Icons.Monitor,
+      },
+      {
+        page: SettingsPages.VoiceVideoPage,
+        name: 'Voice & Video',
+        icon: Icons.Headphone,
       },
       {
         page: SettingsPages.EmojisStickersPage,
@@ -221,6 +228,9 @@ export function Settings({ initialPage, requestClose }: SettingsProps) {
       )}
       {activePage === SettingsPages.DevicesPage && (
         <Devices requestClose={handlePageRequestClose} />
+      )}
+      {activePage === SettingsPages.VoiceVideoPage && (
+        <VoiceVideo requestClose={handlePageRequestClose} />
       )}
       {activePage === SettingsPages.EmojisStickersPage && (
         <EmojisStickers requestClose={handlePageRequestClose} />

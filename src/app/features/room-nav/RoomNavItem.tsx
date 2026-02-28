@@ -51,6 +51,8 @@ import { RoomNotificationModeSwitcher } from '../../components/RoomNotificationS
 import { useRoomCreators } from '../../hooks/useRoomCreators';
 import { useRoomPermissions } from '../../hooks/useRoomPermissions';
 import { InviteUserPrompt } from '../../components/invite-user-prompt';
+import { useRoomCallMembers } from '../../hooks/useRoomCallMembers';
+import { CallMemberList } from '../call/CallMemberList';
 
 type RoomNavItemMenuProps = {
   room: Room;
@@ -227,6 +229,7 @@ export function RoomNavItem({
 }: RoomNavItemProps) {
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
+  const callMembers = useRoomCallMembers(room);
   const [hover, setHover] = useState(false);
   const { hoverProps } = useHover({ onHoverChange: setHover });
   const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
@@ -253,106 +256,111 @@ export function RoomNavItem({
   const optionsVisible = hover || !!menuAnchor;
 
   return (
-    <NavItem
-      variant="Background"
-      radii="400"
-      highlight={unread !== undefined}
-      aria-selected={selected}
-      data-hover={!!menuAnchor}
-      onContextMenu={handleContextMenu}
-      {...hoverProps}
-      {...focusWithinProps}
-    >
-      <NavLink to={linkPath}>
-        <NavItemContent>
-          <Box as="span" grow="Yes" alignItems="Center" gap="200">
-            <Avatar size="200" radii="400">
-              {showAvatar ? (
-                <RoomAvatar
-                  roomId={room.roomId}
-                  src={
-                    direct
-                      ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication)
-                      : getRoomAvatarUrl(mx, room, 96, useAuthentication)
-                  }
-                  alt={room.name}
-                  renderFallback={() => (
-                    <Text as="span" size="H6">
-                      {nameInitials(room.name)}
-                    </Text>
-                  )}
-                />
-              ) : (
-                <RoomIcon
-                  style={{ opacity: unread ? config.opacity.P500 : config.opacity.P300 }}
-                  filled={selected}
-                  size="100"
-                  joinRule={room.getJoinRule()}
-                />
+    <>
+      <NavItem
+        variant="Background"
+        radii="400"
+        highlight={unread !== undefined}
+        aria-selected={selected}
+        data-hover={!!menuAnchor}
+        onContextMenu={handleContextMenu}
+        {...hoverProps}
+        {...focusWithinProps}
+      >
+        <NavLink to={linkPath}>
+          <NavItemContent>
+            <Box as="span" grow="Yes" alignItems="Center" gap="200">
+              <Avatar size="200" radii="400">
+                {showAvatar ? (
+                  <RoomAvatar
+                    roomId={room.roomId}
+                    src={
+                      direct
+                        ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication)
+                        : getRoomAvatarUrl(mx, room, 96, useAuthentication)
+                    }
+                    alt={room.name}
+                    renderFallback={() => (
+                      <Text as="span" size="H6">
+                        {nameInitials(room.name)}
+                      </Text>
+                    )}
+                  />
+                ) : (
+                  <RoomIcon
+                    style={{ opacity: unread ? config.opacity.P500 : config.opacity.P300 }}
+                    filled={selected}
+                    size="100"
+                    joinRule={room.getJoinRule()}
+                  />
+                )}
+              </Avatar>
+              <Box as="span" grow="Yes">
+                <Text priority={unread ? '500' : '300'} as="span" size="Inherit" truncate>
+                  {room.name}
+                </Text>
+              </Box>
+              {!optionsVisible && !unread && !selected && typingMember.length > 0 && (
+                <Badge size="300" variant="Secondary" fill="Soft" radii="Pill" outlined>
+                  <TypingIndicator size="300" disableAnimation />
+                </Badge>
               )}
-            </Avatar>
-            <Box as="span" grow="Yes">
-              <Text priority={unread ? '500' : '300'} as="span" size="Inherit" truncate>
-                {room.name}
-              </Text>
+              {!optionsVisible && unread && (
+                <UnreadBadgeCenter>
+                  <UnreadBadge highlight={unread.highlight > 0} count={unread.total} />
+                </UnreadBadgeCenter>
+              )}
+              {!optionsVisible && notificationMode !== RoomNotificationMode.Unset && (
+                <Icon size="50" src={getRoomNotificationModeIcon(notificationMode)} />
+              )}
             </Box>
-            {!optionsVisible && !unread && !selected && typingMember.length > 0 && (
-              <Badge size="300" variant="Secondary" fill="Soft" radii="Pill" outlined>
-                <TypingIndicator size="300" disableAnimation />
-              </Badge>
-            )}
-            {!optionsVisible && unread && (
-              <UnreadBadgeCenter>
-                <UnreadBadge highlight={unread.highlight > 0} count={unread.total} />
-              </UnreadBadgeCenter>
-            )}
-            {!optionsVisible && notificationMode !== RoomNotificationMode.Unset && (
-              <Icon size="50" src={getRoomNotificationModeIcon(notificationMode)} />
-            )}
-          </Box>
-        </NavItemContent>
-      </NavLink>
-      {optionsVisible && (
-        <NavItemOptions>
-          <PopOut
-            anchor={menuAnchor}
-            offset={menuAnchor?.width === 0 ? 0 : undefined}
-            alignOffset={menuAnchor?.width === 0 ? 0 : -5}
-            position="Bottom"
-            align={menuAnchor?.width === 0 ? 'Start' : 'End'}
-            content={
-              <FocusTrap
-                focusTrapOptions={{
-                  initialFocus: false,
-                  returnFocusOnDeactivate: false,
-                  onDeactivate: () => setMenuAnchor(undefined),
-                  clickOutsideDeactivates: true,
-                  isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                  isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                  escapeDeactivates: stopPropagation,
-                }}
-              >
-                <RoomNavItemMenu
-                  room={room}
-                  requestClose={() => setMenuAnchor(undefined)}
-                  notificationMode={notificationMode}
-                />
-              </FocusTrap>
-            }
-          >
-            <IconButton
-              onClick={handleOpenMenu}
-              aria-pressed={!!menuAnchor}
-              variant="Background"
-              fill="None"
-              size="300"
-              radii="300"
+          </NavItemContent>
+        </NavLink>
+        {optionsVisible && (
+          <NavItemOptions>
+            <PopOut
+              anchor={menuAnchor}
+              offset={menuAnchor?.width === 0 ? 0 : undefined}
+              alignOffset={menuAnchor?.width === 0 ? 0 : -5}
+              position="Bottom"
+              align={menuAnchor?.width === 0 ? 'Start' : 'End'}
+              content={
+                <FocusTrap
+                  focusTrapOptions={{
+                    initialFocus: false,
+                    returnFocusOnDeactivate: false,
+                    onDeactivate: () => setMenuAnchor(undefined),
+                    clickOutsideDeactivates: true,
+                    isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
+                    isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
+                    escapeDeactivates: stopPropagation,
+                  }}
+                >
+                  <RoomNavItemMenu
+                    room={room}
+                    requestClose={() => setMenuAnchor(undefined)}
+                    notificationMode={notificationMode}
+                  />
+                </FocusTrap>
+              }
             >
-              <Icon size="50" src={Icons.VerticalDots} />
-            </IconButton>
-          </PopOut>
-        </NavItemOptions>
+              <IconButton
+                onClick={handleOpenMenu}
+                aria-pressed={!!menuAnchor}
+                variant="Background"
+                fill="None"
+                size="300"
+                radii="300"
+              >
+                <Icon size="50" src={Icons.VerticalDots} />
+              </IconButton>
+            </PopOut>
+          </NavItemOptions>
+        )}
+      </NavItem>
+      {callMembers.length > 0 && (
+        <CallMemberList room={room} members={callMembers} />
       )}
-    </NavItem>
+    </>
   );
 }
